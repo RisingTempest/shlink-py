@@ -3,8 +3,8 @@ from datetime import datetime
 from urllib.parse import quote
 from .data import PagedData
 from .data import ShortUrl
+from .data import VisitData
 from .request import Request
-
 
 class Shlink:
     _api_key: str = None
@@ -19,8 +19,9 @@ class Shlink:
         List all of the short URLs
         :return:
         """
-        return PagedData.parse(self._get("/rest/v1/short-urls"), lambda x: ShortUrl.parse(x))
-
+        return PagedData.parse(self._get("/rest/v3/short-urls"), lambda x: ShortUrl.parse(x))
+    
+    
     def add_short_url(self, long_url: str, tags: List[str] = None, valid_since: datetime = None,
                       valid_until: datetime = None, custom_slug: str = None, max_visits: int = None,
                       find_if_exists: bool = None):
@@ -43,10 +44,10 @@ class Shlink:
         self._data_param(data, "customSlug", custom_slug)
         self._data_param(data, "maxVisits", max_visits)
         self._data_param(data, "findIfExists", find_if_exists)
-        return ShortUrl.parse(self._post("/rest/v1/short-urls", data))
+        return ShortUrl.parse(self._post("/rest/v3/short-urls", data))
 
     def get_short_url(self, short_code: str):
-        return ShortUrl.parse(self._get("/rest/v1/short-urls/" + quote(short_code)))
+        return ShortUrl.parse(self._get("/rest/v3/short-urls/" + quote(short_code)))
 
     ################
 
@@ -60,3 +61,12 @@ class Shlink:
     def _data_param(data: Dict[str, Any], key: str, value: Any):
         if value is not None:
             data[key] = value
+
+
+    """TEST"""
+    def list_visit_data(self) -> PagedData:
+        """
+        List all of the visit data
+        :return:
+        """
+        return PagedData.parse_visits(self._get("/rest/v3/short-urls/{shortCode}/visits"), lambda x: VisitData.parse_visits(x))

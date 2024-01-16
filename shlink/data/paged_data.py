@@ -34,3 +34,20 @@ class PagedData(Data):
             data=data,
             pagination=Pagination.parse(json["shortUrls"]["pagination"])
         )
+    
+
+
+    @staticmethod
+    def parse_visits(json: Dict, data_parse: Callable[[Dict], Data] = lambda x: Data()) -> Union['PagedData', 'Error']:
+        if "error" in json:
+            return Error.parse(json)
+
+        data = []
+        for d in json.get("visits", {}).get("data", []):
+            data.append(data_parse(d))
+
+        return PagedData(
+            data=data,
+            pagination=Pagination.parse(json.get("visits", {}).get("pagination", {}))
+        )
+    
